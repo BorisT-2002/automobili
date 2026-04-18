@@ -18,35 +18,39 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="grid" style={{ gap: 20, paddingBottom: 24 }}>
-      <section className="card">
-        <h1 style={{ marginTop: 0 }}>Marketplace za auto usluge</h1>
-        <p className="muted">
-          Pronađi auto majstora po gradu, usluzi i ocenama. Bez booking sistema, čisto oglasnik.
+    <div className="grid">
+      <section className="hero">
+        <h1>Pronađite pravog majstora za vaš auto</h1>
+        <p>
+          Brzo i lako pretražite bazu najboljih auto servisa i majstora u Srbiji.
+          Pregledajte usluge, ocene i kontaktirajte ih direktno.
         </p>
-        <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-          <Link className="button" style={{ width: "auto" }} href="/search">
-            Idi na pretragu
+        <div className="hero-buttons">
+          <Link className="button" href="/search">
+            Pretraži usluge
           </Link>
-          <Link className="button" style={{ width: "auto", background: "#059669" }} href="/dashboard/add-listing">
+          <Link className="button success" href="/dashboard/add-listing">
             Postavi oglas
           </Link>
         </div>
       </section>
 
       <section>
-        <h2>Kategorije</h2>
+        <h2 className="section-title">Kategorije usluga</h2>
         <div className="grid grid-3">
           {(categories ?? []).map((item) => (
-            <Link key={item.id} className="card" href={`/search?category=${item.slug}`}>
-              {item.name}
+            <Link key={item.id} className="card interactive" href={`/search?category=${item.slug}`}>
+              <div className="flex-between">
+                <span style={{ fontWeight: 600 }}>{item.name}</span>
+                <span className="muted">→</span>
+              </div>
             </Link>
           ))}
         </div>
       </section>
 
       <section>
-        <h2>Istaknuti oglasi</h2>
+        <h2 className="section-title">Istaknuti oglasi</h2>
         <div className="grid grid-3">
           {(featured ?? []).map((item) => (
             <ListingCard key={item.id} {...item} />
@@ -55,7 +59,7 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <h2>Najnoviji oglasi</h2>
+        <h2 className="section-title">Najnoviji oglasi</h2>
         <div className="grid grid-3">
           {(latest ?? []).map((item) => (
             <ListingCard key={item.id} {...item} />

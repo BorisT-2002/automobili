@@ -15,23 +15,30 @@ type ListingCardProps = {
 
 export function ListingCard(props: ListingCardProps) {
   return (
-    <article className="card">
-      <div className="muted">{props.category_name ?? "Usluga"}</div>
-      <h3 style={{ margin: "8px 0" }}>
+    <article className="card interactive" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="flex-between" style={{ marginBottom: '16px' }}>
+        <span className="badge primary">{props.category_name ?? "Usluga"}</span>
+        {props.featured && <span className="badge warning">Istaknuto</span>}
+      </div>
+
+      <h3 style={{ margin: "0 0 8px 0", fontSize: '1.15rem' }}>
         <Link href={props.slug ? `/listing/${props.slug}` : "#"}>
           {props.title ?? "Bez naslova"}
         </Link>
       </h3>
-      <div className="muted">{props.city ?? "Nepoznat grad"}</div>
-      <div style={{ marginTop: 8 }}>
-        Ocena: {props.average_rating?.toFixed(1) ?? "0.0"} ({props.review_count ?? 0})
+
+      <div className="muted" style={{ marginBottom: '24px', fontSize: '0.9rem' }}>
+        📍 {props.city ?? "Nepoznat grad"}
       </div>
-      <div style={{ marginTop: 8, fontWeight: 700 }}>
-        {props.price_on_request ? "Po dogovoru" : props.price ? `${props.price} RSD` : "Nije uneto"}
+
+      <div className="flex-between" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginTop: 'auto' }}>
+        <div style={{ fontSize: '0.9rem', color: '#D97706', fontWeight: 600 }}>
+          ★ {props.average_rating?.toFixed(1) ?? "0.0"} <span className="muted" style={{ fontWeight: 400 }}>({props.review_count ?? 0})</span>
+        </div>
+        <div style={{ fontWeight: 700, color: 'var(--primary)' }}>
+          {props.price_on_request ? "Dogovor" : props.price ? `${props.price} RSD` : "Nije uneto"}
+        </div>
       </div>
-      {props.featured ? (
-        <div style={{ marginTop: 10, color: "#b45309", fontWeight: 700 }}>Istaknuto</div>
-      ) : null}
     </article>
   );
 }

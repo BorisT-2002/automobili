@@ -15,17 +15,17 @@ export default function RootLayout({
       <body>
         <header className="header">
           <div className="container nav">
-            <Link href="/">AutoMajstor.rs</Link>
+            <Link href="/" className="logo">AutoMajstor</Link>
             <nav className="nav-links">
               <Link href="/search">Pretraga</Link>
               <Link href="/auth">Prijava</Link>
-              <Link href="/dashboard/add-listing">Dodaj oglas</Link>
+              <Link href="/dashboard/add-listing" className="btn-nav">Dodaj oglas</Link>
               <Link href="/dashboard/my-listings">Moji oglasi</Link>
               <Link href="/admin/reviews">Admin</Link>
             </nav>
           </div>
         </header>
-        <main className="container">{children}</main>
+        <main className="container main-content">{children}</main>
       </body>
     </html>
   );

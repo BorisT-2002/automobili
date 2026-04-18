@@ -18,13 +18,13 @@ export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
 
   const { data, error } = await supabaseServer.rpc("search_listings", {
-    query_text: params.get("q"),
-    p_city: params.get("city"),
-    p_category_slug: params.get("category"),
-    p_vehicle_brand: params.get("brand"),
-    p_emergency: boolOrNull(params.get("emergency")),
-    p_mobile: boolOrNull(params.get("mobile")),
-    p_min_rating: numOrNull(params.get("minRating")),
+    query_text: params.get("q") ?? undefined,
+    p_city: params.get("city") ?? undefined,
+    p_category_slug: params.get("category") ?? undefined,
+    p_vehicle_brand: params.get("brand") ?? undefined,
+    p_emergency: boolOrNull(params.get("emergency")) ?? undefined,
+    p_mobile: boolOrNull(params.get("mobile")) ?? undefined,
+    p_min_rating: numOrNull(params.get("minRating")) ?? undefined,
     p_featured_only: boolOrNull(params.get("featured")) ?? false,
     p_sort: params.get("sort") ?? "relevance",
     p_limit: numOrNull(params.get("limit")) ?? 20,

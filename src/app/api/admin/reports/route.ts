@@ -16,7 +16,9 @@ export async function GET(req: NextRequest) {
     .limit(100);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const lower = error.message.toLowerCase();
+    const status = lower.includes("permission") || lower.includes("not allowed") ? 403 : 400;
+    return NextResponse.json({ error: error.message }, { status });
   }
 
   return NextResponse.json({ items: data ?? [] });

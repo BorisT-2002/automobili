@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
 const setAccessCookie = (token: string | null) => {
@@ -13,6 +15,8 @@ const setAccessCookie = (token: string | null) => {
 };
 
 export default function AuthPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +28,10 @@ export default function AuthPage() {
       const { data } = await supabase.auth.getSession();
       setSessionEmail(data.session?.user?.email ?? null);
       setAccessCookie(data.session?.access_token ?? null);
+      const next = searchParams.get("next");
+      if (data.session && next && next.startsWith("/")) {
+        router.replace(next);
+      }
     };
     sync();
 
@@ -32,7 +40,7 @@ export default function AuthPage() {
       setAccessCookie(session?.access_token ?? null);
     });
     return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [router, searchParams]);
 
   const signIn = async (event: FormEvent) => {
     event.preventDefault();
@@ -40,7 +48,16 @@ export default function AuthPage() {
     setMessage(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    setMessage(error ? error.message : "Uspešno prijavljivanje.");
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+    const next = searchParams.get("next");
+    if (next && next.startsWith("/")) {
+      router.replace(next);
+      return;
+    }
+    setMessage("Uspešno prijavljivanje.");
   };
 
   const signUp = async () => {
@@ -77,6 +94,13 @@ export default function AuthPage() {
       <p className="muted">
         Trenutno prijavljen: <strong>{sessionEmail ?? "niko"}</strong>
       </p>
+      {sessionEmail ? (
+        <p className="muted" style={{ marginBottom: 10 }}>
+          <Link href="/dashboard/add-listing">Dodaj oglas</Link> •{" "}
+          <Link href="/dashboard/my-listings">Moji oglasi</Link> •{" "}
+          <Link href="/admin/reviews">Admin</Link>
+        </p>
+      ) : null}
 
       <form className="grid" onSubmit={signIn}>
         <label>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AuthGuard } from "../../../components/auth-guard";
 import { supabase } from "../../../lib/supabase";
@@ -13,11 +13,15 @@ type Category = {
 
 export default function AddListingPage() {
   const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const run = async () => {
@@ -26,6 +30,7 @@ export default function AddListingPage() {
         fetch("/api/categories"),
       ]);
       setToken(authData.session?.access_token ?? null);
+      setUserId(authData.session?.user?.id ?? null);
       setSessionEmail(authData.session?.user?.email ?? null);
 
       const categoriesData = await categoriesRes.json();
@@ -35,11 +40,60 @@ export default function AddListingPage() {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setToken(session?.access_token ?? null);
+      setUserId(session?.user?.id ?? null);
       setSessionEmail(session?.user?.email ?? null);
     });
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  const uploadSelectedFiles = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    if (!userId) {
+      setError("Moraš biti prijavljen da uploaduješ slike.");
+      event.target.value = "";
+      return;
+    }
+
+    setUploadingImages(true);
+    setError(null);
+
+    try {
+      const uploaded: string[] = [];
+
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith("image/")) {
+          throw new Error(`Fajl "${file.name}" nije slika.`);
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`Fajl "${file.name}" je veći od 5MB.`);
+        }
+
+        const extension = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
+        const path = `listings/${userId}/${crypto.randomUUID()}.${extension}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("listing-images")
+          .upload(path, file, { upsert: false });
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from("listing-images").getPublicUrl(path);
+        uploaded.push(data.publicUrl);
+      }
+
+      setImageUrls((prev) => [...prev, ...uploaded]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload slika nije uspeo.");
+    } finally {
+      setUploadingImages(false);
+      event.target.value = "";
+    }
+  };
+
+  const removeImage = (url: string) => {
+    setImageUrls((prev) => prev.filter((item) => item !== url));
+  };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,10 +114,7 @@ export default function AddListingPage() {
       emergency_service: Boolean(formData.get("emergency_service")),
       mobile_service: Boolean(formData.get("mobile_service")),
       working_hours: String(formData.get("working_hours") ?? ""),
-      image_urls: String(formData.get("image_urls") ?? "")
-        .split(",")
-        .map((x) => x.trim())
-        .filter(Boolean),
+      image_urls: imageUrls,
     };
 
     try {
@@ -81,6 +132,7 @@ export default function AddListingPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Neuspešno kreiranje oglasa");
       setResult(`Kreiran oglas: ${data.slug}`);
+      setImageUrls([]);
       event.currentTarget.reset();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Došlo je do greške");
@@ -145,10 +197,59 @@ export default function AddListingPage() {
             </label>
           </div>
 
-          <label>
-            <div className="muted">Image URL-ovi (zarezom odvojeni)</div>
-            <input className="input" name="image_urls" />
-          </label>
+          <div>
+            <div className="muted" style={{ marginBottom: 8 }}>
+              Slike oglasa
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={uploadSelectedFiles}
+              style={{ display: "none" }}
+            />
+            <button
+              type="button"
+              className="button"
+              style={{ width: "auto", background: "#0f766e" }}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImages}
+            >
+              {uploadingImages ? "Upload u toku..." : "Upload slika"}
+            </button>
+            <p className="muted" style={{ marginTop: 8 }}>
+              Klikni na dugme, izaberi slike i one će automatski biti dodate u oglas.
+            </p>
+            {imageUrls.length > 0 ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                  gap: 10,
+                  marginTop: 10,
+                }}
+              >
+                {imageUrls.map((url) => (
+                  <div key={url} className="card" style={{ padding: 8 }}>
+                    <img
+                      src={url}
+                      alt="Slika oglasa"
+                      style={{ width: "100%", height: 90, objectFit: "cover", borderRadius: 8 }}
+                    />
+                    <button
+                      type="button"
+                      className="button"
+                      style={{ width: "100%", marginTop: 8, background: "#b91c1c", padding: "8px 12px" }}
+                      onClick={() => removeImage(url)}
+                    >
+                      Ukloni
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
 
           <button className="button" disabled={loading}>
             {loading ? "Čuvanje..." : "Sačuvaj oglas"}

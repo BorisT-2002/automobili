@@ -94,6 +94,8 @@ p { margin: 0; line-height: 1.6; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -109,6 +111,7 @@ p { margin: 0; line-height: 1.6; }
   display: flex;
   gap: 24px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
@@ -132,6 +135,13 @@ p { margin: 0; line-height: 1.6; }
 .nav-links a.btn-nav:hover {
   border-color: var(--primary);
   background: white;
+}
+
+@media (max-width: 900px) {
+  .nav-links {
+    gap: 12px;
+    font-size: 0.9rem;
+  }
 }
 
 /* Cards */

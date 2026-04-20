@@ -74,7 +74,7 @@ export default function AdminReviewsPage() {
   }, []);
 
   return (
-    <AuthGuard>
+    <AuthGuard requireRole="admin">
       <div className="grid" style={{ gap: 12, paddingBottom: 24 }}>
         <section className="card">
           <h1 style={{ marginTop: 0 }}>Admin - prijavljene recenzije</h1>

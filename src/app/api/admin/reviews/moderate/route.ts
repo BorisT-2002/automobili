@@ -18,6 +18,6 @@ export async function POST(req: NextRequest) {
     accessToken,
   );
   const body = await edgeResponse.json();
-
-  return NextResponse.json(body, { status: edgeResponse.status });
+  const status = edgeResponse.status === 401 ? 403 : edgeResponse.status;
+  return NextResponse.json(body, { status });
 }

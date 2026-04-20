@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   }
 
   const payload = await req.json();
-  const edgeResponse = await callEdgeFunction("create-listing", payload, accessToken);
+  const edgeResponse = await callEdgeFunction("create-listing-v2", payload, accessToken);
   const body = await edgeResponse.json();
 
   return NextResponse.json(body, { status: edgeResponse.status });

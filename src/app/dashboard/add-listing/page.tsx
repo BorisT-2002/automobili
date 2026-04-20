@@ -71,7 +71,7 @@ export default function AddListingPage() {
         }
 
         const extension = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
-        const path = `listings/${userId}/${crypto.randomUUID()}.${extension}`;
+        const path = `${userId}/listings/${crypto.randomUUID()}.${extension}`;
 
         const { error: uploadError } = await supabase.storage
           .from("listing-images")

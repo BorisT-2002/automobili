@@ -69,6 +69,13 @@ export default async function ListingPage({ params }: Params) {
       .limit(20),
   ]);
 
+  const whatsAppPhone = listing.whatsapp_viber
+    ? listing.whatsapp_viber.replace(/[^\d]/g, "")
+    : listing.contact_phone.replace(/[^\d]/g, "");
+  const prefilledMessage = encodeURIComponent(
+    `Zdravo, interesuje me oglas "${listing.title}" na AutoMajstor.rs`,
+  );
+
   return (
     <div className="grid" style={{ gap: 16, paddingBottom: 24 }}>
       <section className="card">
@@ -87,6 +94,27 @@ export default async function ListingPage({ params }: Params) {
         <div>Telefon: {listing.contact_phone}</div>
         {listing.whatsapp_viber ? <div>WhatsApp/Viber: {listing.whatsapp_viber}</div> : null}
         {listing.working_hours ? <div>Radno vreme: {listing.working_hours}</div> : null}
+        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+          <a className="button" style={{ width: "auto", background: "#0f766e" }} href={`tel:${listing.contact_phone}`}>
+            Pozovi
+          </a>
+          <a
+            className="button"
+            style={{ width: "auto", background: "#16a34a" }}
+            href={`https://wa.me/${whatsAppPhone}?text=${prefilledMessage}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Chat na WhatsApp
+          </a>
+          <a
+            className="button"
+            style={{ width: "auto", background: "#2563eb" }}
+            href={`viber://chat?number=%2B${whatsAppPhone}`}
+          >
+            Chat na Viber
+          </a>
+        </div>
       </section>
 
       <section className="card">

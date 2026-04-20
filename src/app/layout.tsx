@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { NavbarAuth } from "../components/navbar-auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,10 +19,7 @@ export default function RootLayout({
             <Link href="/" className="logo">AutoMajstor</Link>
             <nav className="nav-links">
               <Link href="/search">Pretraga</Link>
-              <Link href="/auth">Prijava</Link>
-              <Link href="/dashboard/add-listing" className="btn-nav">Dodaj oglas</Link>
-              <Link href="/dashboard/my-listings">Moji oglasi</Link>
-              <Link href="/admin/reviews">Admin</Link>
+              <NavbarAuth />
             </nav>
           </div>
         </header>

@@ -15,8 +15,16 @@ export function AuthGuard({ children, requireRole }: AuthGuardProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const check = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (!mounted) return;
+      if (sessionError) {
+        setError("Greška pri proveri sesije.");
+        setReady(false);
+        return;
+      }
       if (!data.session) {
         const next = encodeURIComponent(window.location.pathname);
         router.replace(`/auth?next=${next}`);
@@ -35,9 +43,25 @@ export function AuthGuard({ children, requireRole }: AuthGuardProps) {
           return;
         }
       }
+      setError(null);
       setReady(true);
     };
     check();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      if (!session) {
+        const next = encodeURIComponent(window.location.pathname);
+        router.replace(`/auth?next=${next}`);
+        return;
+      }
+      setReady(true);
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
   }, [requireRole, router]);
 
   if (error) return <div className="card">{error}</div>;

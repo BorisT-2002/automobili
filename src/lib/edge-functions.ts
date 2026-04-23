@@ -12,6 +12,7 @@ export const callEdgeFunction = async <TBody extends object>(
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
+      apikey: env.supabasePublishableKey,
     },
     body: JSON.stringify(body),
   });

@@ -6,14 +6,49 @@ import { getSupabaseServer } from "../../../lib/supabase-server";
 
 type Params = { params: Promise<{ slug: string }> };
 
+type ListingDetail = {
+  id: string;
+  slug: string | null;
+  title: string;
+  description: string;
+  city: string;
+  contact_phone: string | null;
+  whatsapp_viber: string | null;
+  working_hours: string | null;
+  price: number | null;
+  price_on_request: boolean | null;
+  featured: boolean | null;
+  average_rating: number | null;
+  review_count: number | null;
+};
+
+type ListingImage = { image_url: string; display_order: number | null };
+
+type ListingReview = {
+  id: string;
+  rating: number | null;
+  comment: string | null;
+  created_at: string;
+  profiles: { full_name: string | null } | null;
+};
+
+type ListingMeta = {
+  title: string;
+  description: string;
+  city: string;
+  slug: string | null;
+};
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const { data: listing } = await getSupabaseServer()
+  const { data } = await getSupabaseServer()
     .from("listings")
     .select("title,description,city,slug")
     .eq("slug", slug)
     .eq("status", "active")
     .maybeSingle();
+
+  const listing = data as ListingMeta | null;
 
   if (!listing) {
     return {
@@ -45,18 +80,19 @@ export default async function ListingPage({ params }: Params) {
   const { slug } = await params;
   const supabase = getSupabaseServer();
 
-  const { data: listing } = await supabase
+  const { data: rawListing } = await supabase
     .from("listings")
     .select(
-      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count,categories(name,slug),profiles(full_name,is_verified)",
+      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count",
     )
     .eq("slug", slug)
     .eq("status", "active")
     .maybeSingle();
 
-  if (!listing) notFound();
+  if (!rawListing) notFound();
+  const listing = rawListing as ListingDetail;
 
-  const [{ data: images }, { data: reviews }] = await Promise.all([
+  const [imagesRes, reviewsRes] = await Promise.all([
     supabase
       .from("listing_images")
       .select("image_url,display_order")
@@ -70,6 +106,9 @@ export default async function ListingPage({ params }: Params) {
       .order("created_at", { ascending: false })
       .limit(20),
   ]);
+
+  const images = (imagesRes.data as ListingImage[] | null) ?? [];
+  const reviews = (reviewsRes.data as ListingReview[] | null) ?? [];
 
   const whatsAppSource = listing.whatsapp_viber ?? listing.contact_phone ?? "";
   const whatsAppPhone = whatsAppSource.replace(/[^\d]/g, "");
@@ -121,7 +160,7 @@ export default async function ListingPage({ params }: Params) {
       <section className="card">
         <h2 style={{ marginTop: 0 }}>Galerija</h2>
         <div className="grid grid-3">
-          {(images ?? []).map((img) => (
+          {images.map((img) => (
             <img
               key={`${img.image_url}-${img.display_order}`}
               src={img.image_url}
@@ -135,14 +174,14 @@ export default async function ListingPage({ params }: Params) {
       <section className="card">
         <h2 style={{ marginTop: 0 }}>Recenzije</h2>
         <div className="grid">
-          {(reviews ?? []).map((review) => (
+          {reviews.map((review) => (
             <article key={review.id} style={{ borderBottom: "1px solid #e5e7eb", paddingBottom: 12 }}>
               <strong>{review.profiles?.full_name ?? "Korisnik"}</strong> • {review.rating}/5
               <p style={{ marginBottom: 4 }}>{review.comment ?? "Bez komentara."}</p>
               <div className="muted">{new Date(review.created_at).toLocaleDateString("sr-RS")}</div>
             </article>
           ))}
-          {reviews?.length === 0 ? <div className="muted">Još nema recenzija.</div> : null}
+          {reviews.length === 0 ? <div className="muted">Još nema recenzija.</div> : null}
         </div>
       </section>
 

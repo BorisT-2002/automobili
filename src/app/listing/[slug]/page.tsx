@@ -48,7 +48,7 @@ export default async function ListingPage({ params }: Params) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count",
+      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count,categories(name,slug),profiles(full_name,is_verified)",
     )
     .eq("slug", slug)
     .eq("status", "active")

@@ -10,7 +10,7 @@ export async function GET(_: Request, { params }: Params) {
   const { data: listing, error: listingError } = await supabase
     .from("listings")
     .select(
-      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count,categories(name,slug),profiles(full_name,is_verified)",
+      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count",
     )
     .eq("slug", slug)
     .eq("status", "active")

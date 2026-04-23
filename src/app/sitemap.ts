@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 import { env } from "../lib/env";
-import { supabaseServer } from "../lib/supabase-server";
+import { getSupabaseServer } from "../lib/supabase-server";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = env.siteUrl;
-  const { data } = await supabaseServer.from("seo_listing_pages").select("path,updated_at");
+  const { data } = await getSupabaseServer().from("seo_listing_pages").select("path,updated_at");
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${baseUrl}/`, lastModified: new Date(), changeFrequency: "daily", priority: 1 },

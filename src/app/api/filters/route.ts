@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "../../../lib/supabase-server";
+import { getSupabaseServer } from "../../../lib/supabase-server";
 
 export async function GET() {
-  const { data, error } = await supabaseServer.rpc("listing_filter_options");
+  const { data, error } = await getSupabaseServer().rpc("listing_filter_options");
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

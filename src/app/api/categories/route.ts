@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "../../../lib/supabase-server";
+import { getSupabaseServer } from "../../../lib/supabase-server";
 
 export async function GET() {
-  const { data, error } = await supabaseServer
+  const { data, error } = await getSupabaseServer()
     .from("categories")
     .select("id,name,slug")
     .order("name");

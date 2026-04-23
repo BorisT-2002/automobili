@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AuthGuard } from "../../../../components/auth-guard";
-import { supabase } from "../../../../lib/supabase";
 
 type Category = { id: number; name: string; slug: string };
 type EditableListing = {
@@ -27,7 +26,6 @@ type EditableListing = {
 export default function EditMyListingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [token, setToken] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [listing, setListing] = useState<EditableListing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,20 +35,9 @@ export default function EditMyListingPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data } = await supabase.auth.getSession();
-      const accessToken = data.session?.access_token ?? null;
-      if (!accessToken) {
-        setLoading(false);
-        setError("Moraš biti prijavljen.");
-        return;
-      }
-      setToken(accessToken);
-
       const [categoriesRes, listingRes] = await Promise.all([
         fetch("/api/categories"),
-        fetch(`/api/my/listings/${params.id}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }),
+        fetch(`/api/my/listings/${params.id}`),
       ]);
 
       const categoriesBody = await categoriesRes.json();
@@ -69,17 +56,14 @@ export default function EditMyListingPage() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!token || !listing) return;
+    if (!listing) return;
     setSaving(true);
     setMessage(null);
     setError(null);
 
     const res = await fetch(`/api/my/listings/${params.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(listing),
     });
 

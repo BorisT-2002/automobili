@@ -1,20 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "../../../../lib/auth-header";
-import { supabaseUserServer } from "../../../../lib/supabase-user-server";
+import { NextResponse } from "next/server";
+import { getSupabaseServer } from "../../../../lib/supabase-server";
 
-export async function GET(req: NextRequest) {
-  const token = getBearerToken(req.headers.get("authorization"));
-  if (!token) {
-    return NextResponse.json({ error: "Missing Authorization Bearer token" }, { status: 401 });
-  }
-
-  const supabase = supabaseUserServer(token);
+export async function GET() {
+  const supabase = getSupabaseServer();
   const {
     data: { user },
-    error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError || !user) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

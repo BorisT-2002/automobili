@@ -6,15 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { env } from "../../lib/env";
 import { supabase } from "../../lib/supabase";
 
-const setAccessCookie = (token: string | null) => {
-  if (typeof document === "undefined") return;
-  if (!token) {
-    document.cookie = "am_access_token=; Path=/; Max-Age=0; SameSite=Lax";
-    return;
-  }
-  document.cookie = `am_access_token=${token}; Path=/; Max-Age=604800; SameSite=Lax`;
-};
-
 export default function AuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,7 +19,6 @@ export default function AuthPage() {
     const sync = async () => {
       const { data } = await supabase.auth.getSession();
       setSessionEmail(data.session?.user?.email ?? null);
-      setAccessCookie(data.session?.access_token ?? null);
       const next = searchParams.get("next");
       if (data.session && next && next.startsWith("/")) {
         router.replace(next);
@@ -38,7 +28,6 @@ export default function AuthPage() {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSessionEmail(session?.user?.email ?? null);
-      setAccessCookie(session?.access_token ?? null);
     });
     return () => listener.subscription.unsubscribe();
   }, [router, searchParams]);
@@ -54,11 +43,8 @@ export default function AuthPage() {
       return;
     }
     const next = searchParams.get("next");
-    if (next && next.startsWith("/")) {
-      router.replace(next);
-      return;
-    }
-    setMessage("Uspešno prijavljivanje.");
+    router.replace(next && next.startsWith("/") ? next : "/");
+    router.refresh();
   };
 
   const signUp = async () => {
@@ -75,8 +61,8 @@ export default function AuthPage() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setAccessCookie(null);
     setMessage("Odjavljen si.");
+    router.refresh();
   };
 
   const signInGoogle = async () => {

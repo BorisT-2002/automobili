@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReviewForm } from "../../../components/review-form";
 import { env } from "../../../lib/env";
-import { supabaseServer } from "../../../lib/supabase-server";
+import { getSupabaseServer } from "../../../lib/supabase-server";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const { data: listing } = await supabaseServer
+  const { data: listing } = await getSupabaseServer()
     .from("listings")
     .select("title,description,city,slug")
     .eq("slug", slug)
@@ -43,8 +43,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ListingPage({ params }: Params) {
   const { slug } = await params;
+  const supabase = getSupabaseServer();
 
-  const { data: listing } = await supabaseServer
+  const { data: listing } = await supabase
     .from("listings")
     .select(
       "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count,categories(name,slug),profiles(full_name,is_verified)",
@@ -56,12 +57,12 @@ export default async function ListingPage({ params }: Params) {
   if (!listing) notFound();
 
   const [{ data: images }, { data: reviews }] = await Promise.all([
-    supabaseServer
+    supabase
       .from("listing_images")
       .select("image_url,display_order")
       .eq("listing_id", listing.id)
       .order("display_order"),
-    supabaseServer
+    supabase
       .from("reviews")
       .select("id,rating,comment,created_at,profiles(full_name)")
       .eq("listing_id", listing.id)

@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "../../../../../lib/auth-header";
-import { supabaseUserServer } from "../../../../../lib/supabase-user-server";
+import { getSupabaseServer } from "../../../../../lib/supabase-server";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(req: NextRequest, { params }: Params) {
-  const token = getBearerToken(req.headers.get("authorization"));
-  if (!token) {
-    return NextResponse.json({ error: "Missing Authorization Bearer token" }, { status: 401 });
-  }
+const requireUser = async () => {
+  const supabase = getSupabaseServer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+};
 
-  const supabase = supabaseUserServer(token);
+export async function GET(_req: NextRequest, { params }: Params) {
+  const { supabase, user } = await requireUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { id } = await params;
 
   const { data, error } = await supabase
@@ -29,12 +34,10 @@ export async function GET(req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const token = getBearerToken(req.headers.get("authorization"));
-  if (!token) {
-    return NextResponse.json({ error: "Missing Authorization Bearer token" }, { status: 401 });
+  const { supabase, user } = await requireUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  const supabase = supabaseUserServer(token);
   const { id } = await params;
   const payload = await req.json();
 
@@ -66,13 +69,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   return NextResponse.json({ item: data });
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
-  const token = getBearerToken(req.headers.get("authorization"));
-  if (!token) {
-    return NextResponse.json({ error: "Missing Authorization Bearer token" }, { status: 401 });
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const { supabase, user } = await requireUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  const supabase = supabaseUserServer(token);
   const { id } = await params;
 
   const { error } = await supabase.from("listings").delete().eq("id", id);

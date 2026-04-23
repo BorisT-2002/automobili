@@ -1,5 +1,0 @@
-export const getBearerToken = (authorization: string | null): string | null => {
-  if (!authorization) return null;
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
-  return match?.[1] ?? null;
-};

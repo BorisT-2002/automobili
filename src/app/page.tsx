@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { ListingCard } from "../components/listing-card";
-import { supabaseServer } from "../lib/supabase-server";
+import { getSupabaseServer } from "../lib/supabase-server";
 
 export default async function HomePage() {
+  const supabase = getSupabaseServer();
   const [{ data: categories }, { data: featured }, { data: latest }] = await Promise.all([
-    supabaseServer.from("categories").select("id,name,slug").order("name"),
-    supabaseServer
+    supabase.from("categories").select("id,name,slug").order("name"),
+    supabase
       .from("active_listing_cards")
       .select("*")
       .eq("featured", true)
       .limit(6),
-    supabaseServer
+    supabase
       .from("active_listing_cards")
       .select("*")
       .order("created_at", { ascending: false })

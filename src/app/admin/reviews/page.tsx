@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { AuthGuard } from "../../../components/auth-guard";
-import { supabase } from "../../../lib/supabase";
 
 type ReportItem = {
   report_id: string | null;
@@ -19,15 +18,12 @@ type ReportItem = {
 };
 
 export default function AdminReviewsPage() {
-  const [token, setToken] = useState<string | null>(null);
   const [items, setItems] = useState<ReportItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const load = async (accessToken: string) => {
-    const res = await fetch("/api/admin/reports", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  const load = async () => {
+    const res = await fetch("/api/admin/reports");
     const body = await res.json();
     setLoading(false);
     if (!res.ok) {
@@ -38,13 +34,9 @@ export default function AdminReviewsPage() {
   };
 
   const moderate = async (reviewId: string, action: "publish" | "hide" | "report") => {
-    if (!token) return;
     const res = await fetch("/api/admin/reviews/moderate", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         review_id: reviewId,
         action,
@@ -56,21 +48,11 @@ export default function AdminReviewsPage() {
       setError(body.error ?? "Moderacija nije uspela.");
       return;
     }
-    await load(token);
+    await load();
   };
 
   useEffect(() => {
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
-      const accessToken = data.session?.access_token ?? null;
-      setToken(accessToken);
-      if (accessToken) load(accessToken);
-      else {
-        setLoading(false);
-        setError("Moraš biti prijavljen kao admin.");
-      }
-    };
-    init();
+    load();
   }, []);
 
   return (

@@ -87,9 +87,7 @@ Dodate su i API rute koje "proxy"-uju pozive ka Supabase RPC/Edge funkcijama:
 - `DELETE /api/my/listings/:id`
 - `GET /api/admin/reports`
 
-Napomena: `POST` rute ocekuju header:
-
-`Authorization: Bearer <USER_JWT>`
+Napomena: API rute koriste Supabase session iz HTTP cookie-ja (`@supabase/ssr`). Klijent ne šalje `Authorization` header — sesija se automatski sinhronizuje kroz cookie na klijentu i serveru.
 
 ## Početne stranice
 
@@ -109,8 +107,7 @@ Dodate su i početne Next.js stranice:
 - JWT unos je uklonjen iz `/dashboard/add-listing`
 - Stranica automatski koristi session token prijavljenog korisnika
 - Na detalju oglasa dodata forma za slanje recenzije koja koristi isti auth session
-- Dashboard stranice koriste auth guard i preusmeravaju na `/auth` kad nema sesije
-- Dodat je i `src/middleware.ts` za server-side redirect sa zaštićenih ruta (`/dashboard/*`, `/admin/*`)
+- Dashboard stranice koriste client-side `AuthGuard` + server-side middleware (`src/middleware.ts`) koji čita Supabase session iz cookie-ja i preusmerava na `/auth?next=...` za `/dashboard/*` i `/admin/*`
 
 ## SEO
 

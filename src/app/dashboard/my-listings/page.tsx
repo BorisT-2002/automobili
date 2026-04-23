@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AuthGuard } from "../../../components/auth-guard";
-import { supabase } from "../../../lib/supabase";
 
 type ListingItem = {
   id: string;
@@ -18,17 +17,14 @@ type ListingItem = {
 };
 
 export default function MyListingsPage() {
-  const [token, setToken] = useState<string | null>(null);
   const [items, setItems] = useState<ListingItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const load = async (authToken: string) => {
+  const load = async () => {
     setLoading(true);
     setError(null);
-    const res = await fetch("/api/my/listings", {
-      headers: { Authorization: `Bearer ${authToken}` },
-    });
+    const res = await fetch("/api/my/listings");
     const body = await res.json();
     setLoading(false);
     if (!res.ok) {
@@ -39,25 +35,11 @@ export default function MyListingsPage() {
   };
 
   useEffect(() => {
-    const init = async () => {
-      const { data } = await supabase.auth.getSession();
-      const accessToken = data.session?.access_token ?? null;
-      setToken(accessToken);
-      if (accessToken) load(accessToken);
-      else {
-        setLoading(false);
-        setError("Moraš biti prijavljen.");
-      }
-    };
-    init();
+    load();
   }, []);
 
   const remove = async (id: string) => {
-    if (!token) return;
-    const res = await fetch(`/api/my/listings/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await fetch(`/api/my/listings/${id}`, { method: "DELETE" });
     const body = await res.json();
     if (!res.ok) {
       setError(body.error ?? "Brisanje nije uspelo.");
@@ -67,13 +49,9 @@ export default function MyListingsPage() {
   };
 
   const setStatus = async (id: string, status: "active" | "paused" | "archived") => {
-    if (!token) return;
     const res = await fetch(`/api/my/listings/${id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     const body = await res.json();

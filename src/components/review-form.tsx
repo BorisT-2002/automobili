@@ -27,20 +27,9 @@ export function ReviewForm({ listingId }: ReviewFormProps) {
     setLoading(true);
     setStatus(null);
 
-    const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
-    if (!token) {
-      setLoading(false);
-      setStatus("Moraš biti prijavljen da bi ostavio recenziju.");
-      return;
-    }
-
     const res = await fetch("/api/reviews", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         listing_id: listingId,
         rating,

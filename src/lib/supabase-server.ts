@@ -1,14 +1,24 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import type { Database } from "../../supabase/types";
 import { env } from "./env";
 
-export const supabaseServer = createClient<Database>(
-  env.supabaseUrl,
-  env.supabasePublishableKey,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
+export const getSupabaseServer = () => {
+  const cookieStore = cookies();
+  return createServerClient<Database>(env.supabaseUrl, env.supabasePublishableKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          );
+        } catch {
+          // Read-only cookie jar in a Server Component; middleware handles refresh.
+        }
+      },
     },
-  },
-);
+  });
+};

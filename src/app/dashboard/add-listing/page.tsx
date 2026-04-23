@@ -12,7 +12,6 @@ type Category = {
 };
 
 export default function AddListingPage() {
-  const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,7 +28,6 @@ export default function AddListingPage() {
         supabase.auth.getSession(),
         fetch("/api/categories"),
       ]);
-      setToken(authData.session?.access_token ?? null);
       setUserId(authData.session?.user?.id ?? null);
       setSessionEmail(authData.session?.user?.email ?? null);
 
@@ -39,7 +37,6 @@ export default function AddListingPage() {
     run();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setToken(session?.access_token ?? null);
       setUserId(session?.user?.id ?? null);
       setSessionEmail(session?.user?.email ?? null);
     });
@@ -118,14 +115,9 @@ export default function AddListingPage() {
     };
 
     try {
-      if (!token) throw new Error("Moraš biti prijavljen da kreiraš oglas.");
-
       const res = await fetch("/api/listings", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 

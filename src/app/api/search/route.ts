@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "../../../lib/supabase-server";
+import { getSupabaseServer } from "../../../lib/supabase-server";
 
 const boolOrNull = (value: string | null): boolean | null => {
   if (value === null) return null;
@@ -17,7 +17,7 @@ const numOrNull = (value: string | null): number | null => {
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
 
-  const { data, error } = await supabaseServer.rpc("search_listings", {
+  const { data, error } = await getSupabaseServer().rpc("search_listings", {
     query_text: params.get("q") ?? undefined,
     p_city: params.get("city") ?? undefined,
     p_category_slug: params.get("category") ?? undefined,

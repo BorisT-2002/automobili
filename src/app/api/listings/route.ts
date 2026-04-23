@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBearerToken } from "../../../lib/auth-header";
 import { callEdgeFunction } from "../../../lib/edge-functions";
+import { getSupabaseServer } from "../../../lib/supabase-server";
 
 export async function POST(req: NextRequest) {
-  const accessToken = getBearerToken(req.headers.get("authorization"));
+  const supabase = getSupabaseServer();
+  const { data } = await supabase.auth.getSession();
+  const accessToken = data.session?.access_token;
   if (!accessToken) {
-    return NextResponse.json(
-      { error: "Missing Authorization Bearer token" },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const payload = await req.json();

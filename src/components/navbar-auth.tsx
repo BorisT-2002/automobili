@@ -26,7 +26,6 @@ export function NavbarAuth() {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    document.cookie = "am_access_token=; Path=/; Max-Age=0; SameSite=Lax";
     window.location.href = "/";
   };
 

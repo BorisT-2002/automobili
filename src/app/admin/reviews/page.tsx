@@ -85,52 +85,55 @@ export default function AdminReviewsPage() {
           {error ? <p style={{ color: "#b91c1c" }}>{error}</p> : null}
         </section>
 
-        {items.map((item) => (
-          <article key={`${item.report_id}-${item.review_id}`} className="card">
-            <div className="muted">
-              Prijavljeno:{" "}
-              {item.reported_at ? new Date(item.reported_at).toLocaleString("sr-RS") : "-"}
-            </div>
-            <h3 style={{ margin: "8px 0" }}>{item.listing_title ?? "Oglas"}</h3>
-            <p style={{ margin: "4px 0" }}>
-              <strong>Razlog prijave:</strong> {item.reason ?? "-"}
-            </p>
-            <p style={{ margin: "4px 0" }}>
-              <strong>Recenzija:</strong> {item.comment ?? "Bez komentara"} ({item.rating ?? 0}/5)
-            </p>
-            <p className="muted">
-              Autor: {item.review_author_name ?? "Nepoznat"} • Prijavio:{" "}
-              {item.reporter_name ?? "Nepoznat"} • Status: {item.review_status ?? "-"}
-            </p>
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              {item.review_id ? (
-                <>
-                  <button
-                    className="button"
-                    style={{ width: "auto", background: "#2563eb" }}
-                    onClick={() => moderate(item.review_id!, "publish")}
-                  >
-                    Objavi
-                  </button>
-                  <button
-                    className="button"
-                    style={{ width: "auto", background: "#d97706" }}
-                    onClick={() => moderate(item.review_id!, "hide")}
-                  >
-                    Sakrij
-                  </button>
-                  <button
-                    className="button"
-                    style={{ width: "auto", background: "#7c2d12" }}
-                    onClick={() => moderate(item.review_id!, "report")}
-                  >
-                    Obeleži
-                  </button>
-                </>
-              ) : null}
-            </div>
-          </article>
-        ))}
+        {items.map((item) => {
+          const reviewId = item.review_id;
+          return (
+            <article key={`${item.report_id}-${reviewId}`} className="card">
+              <div className="muted">
+                Prijavljeno:{" "}
+                {item.reported_at ? new Date(item.reported_at).toLocaleString("sr-RS") : "-"}
+              </div>
+              <h3 style={{ margin: "8px 0" }}>{item.listing_title ?? "Oglas"}</h3>
+              <p style={{ margin: "4px 0" }}>
+                <strong>Razlog prijave:</strong> {item.reason ?? "-"}
+              </p>
+              <p style={{ margin: "4px 0" }}>
+                <strong>Recenzija:</strong> {item.comment ?? "Bez komentara"} ({item.rating ?? 0}/5)
+              </p>
+              <p className="muted">
+                Autor: {item.review_author_name ?? "Nepoznat"} • Prijavio:{" "}
+                {item.reporter_name ?? "Nepoznat"} • Status: {item.review_status ?? "-"}
+              </p>
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                {reviewId ? (
+                  <>
+                    <button
+                      className="button"
+                      style={{ width: "auto", background: "#2563eb" }}
+                      onClick={() => moderate(reviewId, "publish")}
+                    >
+                      Objavi
+                    </button>
+                    <button
+                      className="button"
+                      style={{ width: "auto", background: "#d97706" }}
+                      onClick={() => moderate(reviewId, "hide")}
+                    >
+                      Sakrij
+                    </button>
+                    <button
+                      className="button"
+                      style={{ width: "auto", background: "#7c2d12" }}
+                      onClick={() => moderate(reviewId, "report")}
+                    >
+                      Obeleži
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
       </div>
     </AuthGuard>
   );

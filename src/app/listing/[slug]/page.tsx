@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReviewForm } from "../../../components/review-form";
+import { env } from "../../../lib/env";
 import { supabaseServer } from "../../../lib/supabase-server";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const baseUrl = env.siteUrl;
   const description = `${listing.title} u ${listing.city}. ${listing.description.slice(0, 140)}`;
   const canonicalPath = `/listing/${listing.slug}`;
 
@@ -69,9 +70,8 @@ export default async function ListingPage({ params }: Params) {
       .limit(20),
   ]);
 
-  const whatsAppPhone = listing.whatsapp_viber
-    ? listing.whatsapp_viber.replace(/[^\d]/g, "")
-    : listing.contact_phone.replace(/[^\d]/g, "");
+  const whatsAppSource = listing.whatsapp_viber ?? listing.contact_phone ?? "";
+  const whatsAppPhone = whatsAppSource.replace(/[^\d]/g, "");
   const prefilledMessage = encodeURIComponent(
     `Zdravo, interesuje me oglas "${listing.title}" na AutoMajstor.rs`,
   );
@@ -81,7 +81,7 @@ export default async function ListingPage({ params }: Params) {
       <section className="card">
         <h1 style={{ marginTop: 0 }}>{listing.title}</h1>
         <div className="muted">
-          {listing.city} • Ocena {listing.average_rating.toFixed(1)} ({listing.review_count})
+          {listing.city} • Ocena {(listing.average_rating ?? 0).toFixed(1)} ({listing.review_count ?? 0})
         </div>
         <p style={{ marginTop: 14 }}>{listing.description}</p>
         <div style={{ marginTop: 14, fontWeight: 700 }}>

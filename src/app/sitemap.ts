@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
+import { env } from "../lib/env";
 import { supabaseServer } from "../lib/supabase-server";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const baseUrl = env.siteUrl;
   const { data } = await supabaseServer.from("seo_listing_pages").select("path,updated_at");
 
   const staticRoutes: MetadataRoute.Sitemap = [

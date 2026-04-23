@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { env } from "../../lib/env";
 import { supabase } from "../../lib/supabase";
 
 const setAccessCookie = (token: string | null) => {
@@ -82,7 +83,7 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth` : undefined,
+        redirectTo: `${env.siteUrl}/auth`,
       },
     });
     if (error) setMessage(error.message);

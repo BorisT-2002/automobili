@@ -9,4 +9,5 @@ const required = (name: string): string => {
 export const env = {
   supabaseUrl: required("NEXT_PUBLIC_SUPABASE_URL"),
   supabasePublishableKey: required("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
+  siteUrl: required("NEXT_PUBLIC_SITE_URL"),
 };

@@ -32,17 +32,23 @@ export function NavbarAuth() {
   if (loading) return null;
 
   if (!email) {
-    return <Link href="/auth">Prijava</Link>;
+    return (
+      <Link href="/auth" className="btn-nav">
+        🔑 Prijava / Registracija
+      </Link>
+    );
   }
 
   return (
     <>
-      <Link href="/dashboard/my-listings">Moji oglasi</Link>
-      <Link href="/dashboard/add-listing" className="btn-nav">
-        Dodaj oglas
-      </Link>
-      <Link href="/admin/reviews">Admin</Link>
-      <button type="button" className="button" style={{ width: "auto", padding: "8px 14px" }} onClick={logout}>
+      <Link href="/dashboard">Moj Dashboard</Link>
+      <Link href="/dashboard/my-listings">Moji Oglasi</Link>
+      <button
+        type="button"
+        className="button outline"
+        style={{ padding: "8px 16px", fontSize: "0.85rem" }}
+        onClick={logout}
+      >
         Odjava
       </button>
     </>

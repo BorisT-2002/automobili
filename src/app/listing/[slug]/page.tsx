@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReviewForm } from "../../../components/review-form";
 import { ServiceMap } from "../../../components/service-map";
+import { StartChatButton } from "../../../components/start-chat-button";
 import { env } from "../../../lib/env";
 import { getSupabaseServer } from "../../../lib/supabase-server";
 
@@ -9,6 +10,7 @@ type Params = { params: Promise<{ slug: string }> };
 
 type ListingDetail = {
   id: string;
+  provider_id: string;
   slug: string | null;
   title: string;
   description: string;
@@ -86,7 +88,7 @@ export default async function ListingPage({ params }: Params) {
   const { data: rawListing } = await supabase
     .from("listings")
     .select(
-      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,emergency_service,mobile_service,average_rating,review_count",
+      "id,provider_id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,emergency_service,mobile_service,average_rating,review_count",
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -252,7 +254,7 @@ export default async function ListingPage({ params }: Params) {
         {/* Sidebar Info & Action Buttons */}
         <div className="grid" style={{ gap: 24, alignContent: "start" }}>
           <section className="card" style={{ border: "1px solid var(--border-hover)" }}>
-            <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: "1.3rem" }}>Kontakt & Radno Vreme</h2>
+            <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: "1.3rem" }}>Kontakt & Čat</h2>
 
             <div style={{ marginBottom: 20 }}>
               <div className="muted" style={{ fontSize: "0.85rem", marginBottom: 4 }}>Okvirna Cena Usluge</div>
@@ -269,6 +271,9 @@ export default async function ListingPage({ params }: Params) {
             ) : null}
 
             <div className="grid" style={{ gap: 12 }}>
+              {/* Direct In-App Realtime Chat Button */}
+              <StartChatButton listingId={listing.id} providerId={listing.provider_id} />
+
               {listing.contact_phone ? (
                 <a
                   className="button"

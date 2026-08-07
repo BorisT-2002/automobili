@@ -41,6 +41,7 @@ export function NavbarAuth() {
 
   return (
     <>
+      <Link href="/dashboard/messages">💬 Poruke</Link>
       <Link href="/dashboard">Moj Dashboard</Link>
       <Link href="/dashboard/my-listings">Moji Oglasi</Link>
       <button

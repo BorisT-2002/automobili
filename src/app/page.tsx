@@ -13,13 +13,15 @@ const CATEGORY_ICONS: Record<string, string> = {
   "vulkanizeri": "🛞",
 };
 
-const CITIES = [
-  "Svi gradovi",
-  "Beograd",
-  "Novi Sad",
-  "Niš",
-  "Kragujevac",
-  "Subotica",
+const POPULAR_CITIES = [
+  { name: "Beograd", count: "180+ servisa", icon: "🏙️" },
+  { name: "Novi Sad", count: "95+ servisa", icon: "🌉" },
+  { name: "Niš", count: "65+ servisa", icon: "🏛️" },
+  { name: "Kragujevac", count: "45+ servisa", icon: "🚗" },
+  { name: "Subotica", count: "35+ servisa", icon: "🏰" },
+  { name: "Vrbas", count: "20+ servisa", icon: "📍" },
+  { name: "Zrenjanin", count: "30+ servisa", icon: "📍" },
+  { name: "Pančevo", count: "40+ servisa", icon: "📍" },
 ];
 
 export default async function HomePage() {
@@ -78,9 +80,10 @@ export default async function HomePage() {
           <div className="search-field">
             <span className="search-icon">📍</span>
             <select name="city" className="search-select">
-              {CITIES.map((c) => (
-                <option key={c} value={c === "Svi gradovi" ? "" : c}>
-                  {c}
+              <option value="">Svi gradovi</option>
+              {POPULAR_CITIES.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -121,6 +124,31 @@ export default async function HomePage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* NEW: Pretraži po Gradovima Sekcija */}
+      <section>
+        <div className="section-header">
+          <h2 className="section-title">Pretraži Auto Servise po Gradovima</h2>
+          <Link href="/search" className="section-link">
+            Svi gradovi →
+          </Link>
+        </div>
+
+        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+          {POPULAR_CITIES.map((c) => (
+            <Link
+              key={c.name}
+              href={`/search?city=${encodeURIComponent(c.name)}`}
+              className="card interactive"
+              style={{ padding: 14, textAlign: "center" }}
+            >
+              <div style={{ fontSize: "1.5rem", marginBottom: 4 }}>{c.icon}</div>
+              <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{c.name}</div>
+              <div className="muted" style={{ fontSize: "0.75rem", marginTop: 2 }}>{c.count}</div>
+            </Link>
+          ))}
         </div>
       </section>
 

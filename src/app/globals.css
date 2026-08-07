@@ -70,7 +70,7 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); }
 
 /* Layout Containers */
 .container {
-  width: min(1200px, 94%);
+  width: min(1280px, 94%);
   margin: 0 auto;
 }
 
@@ -263,6 +263,96 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); }
   color: #FCA5A5;
 }
 
+/* Split-Screen Layout for Search */
+.search-split-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.search-left-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.search-right-map {
+  position: sticky;
+  top: 76px;
+}
+
+/* Horizontal Search Listing Card */
+.search-horizontal-card {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.search-horizontal-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.search-card-image-box {
+  position: relative;
+  width: 200px;
+  min-width: 200px;
+  height: 150px;
+  background: #0F172A;
+  overflow: hidden;
+}
+
+.search-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.search-horizontal-card:hover .search-card-image {
+  transform: scale(1.06);
+}
+
+.search-card-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+.search-card-info {
+  padding: 14px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.search-card-title {
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.search-card-title a {
+  color: var(--text-main);
+}
+
+.search-card-title a:hover {
+  color: var(--primary);
+}
+
+.search-card-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 /* Section Header */
 .section-header {
   display: flex;
@@ -322,7 +412,7 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); }
 /* Compact Listings Grid */
 .listings-compact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
 }
 
@@ -514,7 +604,11 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); }
   color: var(--text-light);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+  .search-split-layout { grid-template-columns: 1fr; }
+  .search-right-map { position: relative; top: 0; }
+  .search-horizontal-card { flex-direction: column; }
+  .search-card-image-box { width: 100%; min-width: 100%; height: 160px; }
   .hero-search-bar { flex-direction: column; border-radius: var(--radius-lg); padding: 12px; gap: 8px; }
   .search-divider { width: 100%; height: 1px; }
   .search-btn { width: 100%; }

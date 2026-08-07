@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ListingCard } from "../../components/listing-card";
+import { SearchListingCard } from "../../components/search-listing-card";
 import { ServiceMap } from "../../components/service-map";
 
 type SearchItem = {
@@ -16,6 +16,9 @@ type SearchItem = {
   price: number | null;
   price_on_request: boolean | null;
   featured: boolean | null;
+  primary_image?: string | null;
+  emergency_service?: boolean | null;
+  contact_phone?: string | null;
 };
 
 type Category = {
@@ -31,6 +34,9 @@ const CITIES = [
   "Niš",
   "Kragujevac",
   "Subotica",
+  "Vrbas",
+  "Zrenjanin",
+  "Pančevo",
 ];
 
 export default function SearchPage() {
@@ -40,7 +46,6 @@ export default function SearchPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const initialCategory = useMemo(() => searchParams.get("category") ?? "", [searchParams]);
   const [category, setCategory] = useState(initialCategory);
@@ -92,53 +97,23 @@ export default function SearchPage() {
   }, [items]);
 
   return (
-    <div className="grid" style={{ gap: 24 }}>
+    <div className="grid" style={{ gap: 20 }}>
+      {/* Top Filter Card */}
       <section className="card">
-        <div className="flex-between" style={{ marginBottom: 16 }}>
-          <h1 style={{ margin: 0 }}>Pretraga majstora i auto servisa</h1>
-          <div style={{ display: "flex", gap: 8, background: "#0F172A", padding: 4, borderRadius: "var(--radius-full)", border: "1px solid var(--border-color)" }}>
-            <button
-              type="button"
-              className="button"
-              style={{
-                background: viewMode === "grid" ? "var(--primary-gradient)" : "transparent",
-                boxShadow: viewMode === "grid" ? "var(--shadow-glow)" : "none",
-                padding: "8px 16px",
-                fontSize: "0.85rem",
-              }}
-              onClick={() => setViewMode("grid")}
-            >
-              📋 Mreža
-            </button>
-            <button
-              type="button"
-              className="button"
-              style={{
-                background: viewMode === "map" ? "var(--primary-gradient)" : "transparent",
-                boxShadow: viewMode === "map" ? "var(--shadow-glow)" : "none",
-                padding: "8px 16px",
-                fontSize: "0.85rem",
-              }}
-              onClick={() => setViewMode("map")}
-            >
-              🗺️ Prikaži na Mapi
-            </button>
-          </div>
-        </div>
-
-        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, alignItems: "end" }}>
+        <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: "1.6rem" }}>Pretraga majstora i auto servisa</h1>
+        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, alignItems: "end" }}>
           <label>
-            <div className="muted" style={{ marginBottom: 6 }}>Pretraga (po nazivu ili usluzi)</div>
+            <div className="muted" style={{ marginBottom: 4, fontSize: "0.85rem" }}>Pretraga (naziv ili usluga)</div>
             <input
               className="input"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="npr. kočnice, poliranje, dijagnostika..."
+              placeholder="npr. kočnice, poliranje..."
             />
           </label>
 
           <label>
-            <div className="muted" style={{ marginBottom: 6 }}>Kategorija</div>
+            <div className="muted" style={{ marginBottom: 4, fontSize: "0.85rem" }}>Kategorija</div>
             <select
               className="select"
               value={category}
@@ -154,7 +129,7 @@ export default function SearchPage() {
           </label>
 
           <label>
-            <div className="muted" style={{ marginBottom: 6 }}>Grad</div>
+            <div className="muted" style={{ marginBottom: 4, fontSize: "0.85rem" }}>Grad</div>
             <select
               className="select"
               value={city}
@@ -168,50 +143,65 @@ export default function SearchPage() {
             </select>
           </label>
 
-          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", paddingBottom: 10 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", paddingBottom: 8 }}>
             <input
               type="checkbox"
               checked={emergency}
               onChange={(e) => setEmergency(e.target.checked)}
-              style={{ width: 18, height: 18, accentColor: "#4F46E5" }}
+              style={{ width: 16, height: 16, accentColor: "#4F46E5" }}
             />
-            <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>Samo 00-24h (Hitne intervencije)</span>
+            <span style={{ fontWeight: 600, fontSize: "0.85rem" }}>00-24h Hitno</span>
           </label>
 
-          <button className="button" onClick={() => load(q, category, city, emergency)}>
+          <button className="button" style={{ padding: "10px 20px" }} onClick={() => load(q, category, city, emergency)}>
             Pretraži
           </button>
         </div>
       </section>
 
-      {loading ? <div className="card">Učitavanje rezultata...</div> : null}
-      {error ? <div className="card" style={{ color: "#b91c1c" }}>Greška: {error}</div> : null}
+      {/* Split Screen Layout: List on Left, Sticky Map on Right */}
+      <div className="search-split-layout">
+        {/* Left Side: Results Feed */}
+        <div className="search-left-feed">
+          <div className="flex-between" style={{ marginBottom: 12 }}>
+            <span style={{ fontWeight: 700, fontSize: "1rem" }}>
+              {loading ? "Učitavanje..." : `${items.length} servisa u rezultatima`}
+            </span>
+          </div>
 
-      {!loading && !error && items.length === 0 ? (
-        <div className="card" style={{ textAlign: "center", padding: "40px 20px" }}>
-          <h3>Nema pronađenih oglasa</h3>
-          <p className="muted" style={{ marginTop: 8 }}>Pokušaj da izmeniš filtere ili promeniš reč za pretragu.</p>
+          {error ? <div className="card" style={{ color: "#b91c1c" }}>Greška: {error}</div> : null}
+
+          {!loading && !error && items.length === 0 ? (
+            <div className="card" style={{ textAlign: "center", padding: "40px 20px" }}>
+              <h3>Nema pronađenih oglasa</h3>
+              <p className="muted" style={{ marginTop: 8 }}>Pokušaj da izmeniš filtere ili promeniš reč za pretragu.</p>
+            </div>
+          ) : null}
+
+          <div className="grid" style={{ gap: 14 }}>
+            {items.map((item) => (
+              <SearchListingCard key={item.id} {...item} />
+            ))}
+          </div>
         </div>
-      ) : null}
 
-      {viewMode === "grid" ? (
-        <section className="grid grid-3">
-          {items.map((item) => (
-            <ListingCard key={item.id} {...item} />
-          ))}
-        </section>
-      ) : (
-        <section className="card">
-          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Mape Servisa sa rezultatima pretrage ({items.length})</h2>
-          <ServiceMap
-            city={city || "Beograd"}
-            title="Pretraga Servisa"
-            height={500}
-            zoom={city ? 12 : 7}
-            markers={mapMarkers}
-          />
-        </section>
-      )}
+        {/* Right Side: Sticky Map */}
+        <div className="search-right-map">
+          <div className="card sticky-map-container" style={{ padding: 12 }}>
+            <div className="flex-between" style={{ marginBottom: 8 }}>
+              <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>📍 Mapa Servisa</span>
+              <span className="badge primary">{items.length} pinova</span>
+            </div>
+            <ServiceMap
+              city={city || "Beograd"}
+              title="Pretraga Servisa"
+              height="calc(100vh - 220px)"
+              zoom={city ? 12 : 7}
+              markers={mapMarkers}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

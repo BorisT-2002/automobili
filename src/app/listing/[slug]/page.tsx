@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReviewForm } from "../../../components/review-form";
+import { ServiceMap } from "../../../components/service-map";
 import { env } from "../../../lib/env";
 import { getSupabaseServer } from "../../../lib/supabase-server";
 
@@ -122,7 +123,7 @@ export default async function ListingPage({ params }: Params) {
 
   return (
     <div className="grid" style={{ gap: 24, paddingBottom: 40 }}>
-      {/* Banner / Cover Header */}
+      {/* Banner Header */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ position: "relative", width: "100%", height: 320, background: "#0F172A" }}>
           <img
@@ -186,6 +187,12 @@ export default async function ListingPage({ params }: Params) {
           <section className="card">
             <h2 style={{ marginTop: 0, marginBottom: 16 }}>Opis Usluge</h2>
             <p style={{ whiteSpace: "pre-line", fontSize: "1.05rem" }}>{listing.description}</p>
+          </section>
+
+          {/* Interactive Location Map */}
+          <section className="card">
+            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Lokacija Servisa</h2>
+            <ServiceMap city={listing.city} title={listing.title} height={300} />
           </section>
 
           {/* Gallery */}

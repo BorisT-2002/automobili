@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ListingCard } from "../../components/listing-card";
+import { ServiceMap } from "../../components/service-map";
 
 type SearchItem = {
   id: string | null;
@@ -39,6 +40,7 @@ export default function SearchPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   const initialCategory = useMemo(() => searchParams.get("category") ?? "", [searchParams]);
   const [category, setCategory] = useState(initialCategory);
@@ -78,10 +80,52 @@ export default function SearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const mapMarkers = useMemo(() => {
+    return items
+      .filter((i) => i.title && i.city)
+      .map((i) => ({
+        title: i.title!,
+        city: i.city!,
+        slug: i.slug ?? undefined,
+        category: i.category_name ?? undefined,
+      }));
+  }, [items]);
+
   return (
     <div className="grid" style={{ gap: 24 }}>
       <section className="card">
-        <h1 style={{ marginTop: 0, marginBottom: 16 }}>Pretraga majstora i auto servisa</h1>
+        <div className="flex-between" style={{ marginBottom: 16 }}>
+          <h1 style={{ margin: 0 }}>Pretraga majstora i auto servisa</h1>
+          <div style={{ display: "flex", gap: 8, background: "#0F172A", padding: 4, borderRadius: "var(--radius-full)", border: "1px solid var(--border-color)" }}>
+            <button
+              type="button"
+              className="button"
+              style={{
+                background: viewMode === "grid" ? "var(--primary-gradient)" : "transparent",
+                boxShadow: viewMode === "grid" ? "var(--shadow-glow)" : "none",
+                padding: "8px 16px",
+                fontSize: "0.85rem",
+              }}
+              onClick={() => setViewMode("grid")}
+            >
+              📋 Mreža
+            </button>
+            <button
+              type="button"
+              className="button"
+              style={{
+                background: viewMode === "map" ? "var(--primary-gradient)" : "transparent",
+                boxShadow: viewMode === "map" ? "var(--shadow-glow)" : "none",
+                padding: "8px 16px",
+                fontSize: "0.85rem",
+              }}
+              onClick={() => setViewMode("map")}
+            >
+              🗺️ Prikaži na Mapi
+            </button>
+          </div>
+        </div>
+
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, alignItems: "end" }}>
           <label>
             <div className="muted" style={{ marginBottom: 6 }}>Pretraga (po nazivu ili usluzi)</div>
@@ -150,12 +194,24 @@ export default function SearchPage() {
         </div>
       ) : null}
 
-      <section className="grid grid-3">
-        {items.map((item) => (
-          <ListingCard key={item.id} {...item} />
-        ))}
-      </section>
+      {viewMode === "grid" ? (
+        <section className="grid grid-3">
+          {items.map((item) => (
+            <ListingCard key={item.id} {...item} />
+          ))}
+        </section>
+      ) : (
+        <section className="card">
+          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Mape Servisa sa rezultatima pretrage ({items.length})</h2>
+          <ServiceMap
+            city={city || "Beograd"}
+            title="Pretraga Servisa"
+            height={500}
+            zoom={city ? 12 : 7}
+            markers={mapMarkers}
+          />
+        </section>
+      )}
     </div>
   );
 }
-

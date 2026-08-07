@@ -11,32 +11,57 @@ type ListingCardProps = {
   price: number | null;
   price_on_request: boolean | null;
   featured: boolean | null;
+  primary_image?: string | null;
+  emergency_service?: boolean | null;
 };
 
 export function ListingCard(props: ListingCardProps) {
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80";
+
   return (
-    <article className="card interactive" style={{ display: 'flex', flexDirection: 'column' }}>
-      <div className="flex-between" style={{ marginBottom: '16px' }}>
-        <span className="badge primary">{props.category_name ?? "Usluga"}</span>
-        {props.featured && <span className="badge warning">Istaknuto</span>}
-      </div>
-
-      <h3 style={{ margin: "0 0 8px 0", fontSize: '1.15rem' }}>
-        <Link href={props.slug ? `/listing/${props.slug}` : "#"}>
-          {props.title ?? "Bez naslova"}
-        </Link>
-      </h3>
-
-      <div className="muted" style={{ marginBottom: '24px', fontSize: '0.9rem' }}>
-        📍 {props.city ?? "Nepoznat grad"}
-      </div>
-
-      <div className="flex-between" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginTop: 'auto' }}>
-        <div style={{ fontSize: '0.9rem', color: '#D97706', fontWeight: 600 }}>
-          ★ {props.average_rating?.toFixed(1) ?? "0.0"} <span className="muted" style={{ fontWeight: 400 }}>({props.review_count ?? 0})</span>
+    <article className="card interactive listing-card">
+      <div className="card-image-wrapper">
+        <img
+          src={props.primary_image || fallbackImage}
+          alt={props.title ?? "Auto servis"}
+          className="card-image"
+          loading="lazy"
+        />
+        <div className="card-badge-row">
+          <span className="badge primary">{props.category_name ?? "Usluga"}</span>
+          {props.featured && <span className="badge warning glow-badge">★ Istaknuto</span>}
+          {props.emergency_service && <span className="badge danger glow-danger">00-24h</span>}
         </div>
-        <div style={{ fontWeight: 700, color: 'var(--primary)' }}>
-          {props.price_on_request ? "Dogovor" : props.price ? `${props.price} RSD` : "Nije uneto"}
+      </div>
+
+      <div className="card-body">
+        <h3 className="card-title">
+          <Link href={props.slug ? `/listing/${props.slug}` : "#"}>
+            {props.title ?? "Bez naslova"}
+          </Link>
+        </h3>
+
+        <div className="card-location muted">
+          <span>📍 {props.city ?? "Srbija"}</span>
+        </div>
+
+        <div className="card-footer flex-between">
+          <div className="card-rating">
+            <span className="star-icon">★</span>
+            <span className="rating-num">{(props.average_rating ?? 0).toFixed(1)}</span>
+            <span className="rating-count muted">({props.review_count ?? 0})</span>
+          </div>
+
+          <div className="card-price">
+            {props.price_on_request ? (
+              <span className="price-tag">Po dogovoru</span>
+            ) : props.price ? (
+              <span className="price-amount">{Number(props.price).toLocaleString("sr-RS")} <small>RSD</small></span>
+            ) : (
+              <span className="price-tag muted">Na upit</span>
+            )}
+          </div>
         </div>
       </div>
     </article>

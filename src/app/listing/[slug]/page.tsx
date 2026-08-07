@@ -18,6 +18,8 @@ type ListingDetail = {
   price: number | null;
   price_on_request: boolean | null;
   featured: boolean | null;
+  emergency_service: boolean | null;
+  mobile_service: boolean | null;
   average_rating: number | null;
   review_count: number | null;
 };
@@ -83,7 +85,7 @@ export default async function ListingPage({ params }: Params) {
   const { data: rawListing } = await supabase
     .from("listings")
     .select(
-      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,average_rating,review_count",
+      "id,slug,title,description,city,contact_phone,whatsapp_viber,working_hours,price,price_on_request,featured,emergency_service,mobile_service,average_rating,review_count",
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -116,76 +118,185 @@ export default async function ListingPage({ params }: Params) {
     `Zdravo, interesuje me oglas "${listing.title}" na AutoMajstor.rs`,
   );
 
+  const mainImage = images[0]?.image_url || "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80";
+
   return (
-    <div className="grid" style={{ gap: 16, paddingBottom: 24 }}>
-      <section className="card">
-        <h1 style={{ marginTop: 0 }}>{listing.title}</h1>
-        <div className="muted">
-          {listing.city} • Ocena {(listing.average_rating ?? 0).toFixed(1)} ({listing.review_count ?? 0})
-        </div>
-        <p style={{ marginTop: 14 }}>{listing.description}</p>
-        <div style={{ marginTop: 14, fontWeight: 700 }}>
-          Cena: {listing.price_on_request ? "Po dogovoru" : listing.price ? `${listing.price} RSD` : "Nije uneto"}
-        </div>
-      </section>
-
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Kontakt</h2>
-        <div>Telefon: {listing.contact_phone}</div>
-        {listing.whatsapp_viber ? <div>WhatsApp/Viber: {listing.whatsapp_viber}</div> : null}
-        {listing.working_hours ? <div>Radno vreme: {listing.working_hours}</div> : null}
-        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-          <a className="button" style={{ width: "auto", background: "#0f766e" }} href={`tel:${listing.contact_phone}`}>
-            Pozovi
-          </a>
-          <a
-            className="button"
-            style={{ width: "auto", background: "#16a34a" }}
-            href={`https://wa.me/${whatsAppPhone}?text=${prefilledMessage}`}
-            target="_blank"
-            rel="noreferrer"
+    <div className="grid" style={{ gap: 24, paddingBottom: 40 }}>
+      {/* Banner / Cover Header */}
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ position: "relative", width: "100%", height: 320, background: "#0F172A" }}>
+          <img
+            src={mainImage}
+            alt={listing.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to top, rgba(18, 24, 39, 0.95) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: 24,
+              left: 24,
+              right: 24,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
+            }}
           >
-            Chat na WhatsApp
-          </a>
-          <a
-            className="button"
-            style={{ width: "auto", background: "#2563eb" }}
-            href={`viber://chat?number=%2B${whatsAppPhone}`}
-          >
-            Chat na Viber
-          </a>
-        </div>
-      </section>
+            <div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+                <span className="badge primary">📍 {listing.city}</span>
+                {listing.featured && <span className="badge warning glow-badge">★ Istaknuto</span>}
+                {listing.emergency_service && <span className="badge danger glow-danger">00-24h Hitno</span>}
+                {listing.mobile_service && <span className="badge primary">Terenski servis</span>}
+              </div>
+              <h1 style={{ fontSize: "2.2rem", margin: 0, color: "white" }}>{listing.title}</h1>
+            </div>
 
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Galerija</h2>
-        <div className="grid grid-3">
-          {images.map((img) => (
-            <img
-              key={`${img.image_url}-${img.display_order}`}
-              src={img.image_url}
-              alt={listing.title}
-              style={{ width: "100%", borderRadius: 8, border: "1px solid #e5e7eb" }}
-            />
-          ))}
+            <div
+              style={{
+                background: "rgba(15, 23, 42, 0.85)",
+                backdropFilter: "blur(12px)",
+                padding: "12px 20px",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                textAlign: "right",
+              }}
+            >
+              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Prosečna ocena</div>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#F59E0B" }}>
+                ★ {(listing.average_rating ?? 0).toFixed(1)} <small style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 400 }}>({listing.review_count ?? 0} ocena)</small>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Recenzije</h2>
-        <div className="grid">
-          {reviews.map((review) => (
-            <article key={review.id} style={{ borderBottom: "1px solid #e5e7eb", paddingBottom: 12 }}>
-              <strong>{review.profiles?.full_name ?? "Korisnik"}</strong> • {review.rating}/5
-              <p style={{ marginBottom: 4 }}>{review.comment ?? "Bez komentara."}</p>
-              <div className="muted">{new Date(review.created_at).toLocaleDateString("sr-RS")}</div>
-            </article>
-          ))}
-          {reviews.length === 0 ? <div className="muted">Još nema recenzija.</div> : null}
+      {/* Main Content Grid */}
+      <div className="grid" style={{ gridTemplateColumns: "2fr 1fr", gap: 24 }}>
+        <div className="grid" style={{ gap: 24 }}>
+          {/* Description */}
+          <section className="card">
+            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Opis Usluge</h2>
+            <p style={{ whiteSpace: "pre-line", fontSize: "1.05rem" }}>{listing.description}</p>
+          </section>
+
+          {/* Gallery */}
+          {images.length > 0 ? (
+            <section className="card">
+              <h2 style={{ marginTop: 0, marginBottom: 16 }}>Galerija Slika</h2>
+              <div className="grid grid-3">
+                {images.map((img, idx) => (
+                  <img
+                    key={`${img.image_url}-${idx}`}
+                    src={img.image_url}
+                    alt={listing.title}
+                    style={{
+                      width: "100%",
+                      height: 180,
+                      objectFit: "cover",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--border-color)",
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {/* Reviews List */}
+          <section className="card">
+            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Recenzije Korisnika</h2>
+            <div className="grid" style={{ gap: 16 }}>
+              {reviews.map((review) => (
+                <article
+                  key={review.id}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.02)",
+                    border: "1px solid var(--border-color)",
+                    padding: 16,
+                    borderRadius: "var(--radius-md)",
+                  }}
+                >
+                  <div className="flex-between" style={{ marginBottom: 8 }}>
+                    <span style={{ fontWeight: 700 }}>{review.profiles?.full_name ?? "Korisnik"}</span>
+                    <span style={{ color: "#F59E0B", fontWeight: 700 }}>★ {review.rating}/5</span>
+                  </div>
+                  <p style={{ marginBottom: 8, color: "var(--text-main)" }}>{review.comment ?? "Bez komentara."}</p>
+                  <div className="muted" style={{ fontSize: "0.8rem" }}>
+                    {new Date(review.created_at).toLocaleDateString("sr-RS")}
+                  </div>
+                </article>
+              ))}
+              {reviews.length === 0 ? <div className="muted">Još nema recenzija. Budi prvi koji će ostaviti ocenu!</div> : null}
+            </div>
+          </section>
+
+          <ReviewForm listingId={listing.id} />
         </div>
-      </section>
 
-      <ReviewForm listingId={listing.id} />
+        {/* Sidebar Info & Action Buttons */}
+        <div className="grid" style={{ gap: 24, alignContent: "start" }}>
+          <section className="card" style={{ border: "1px solid var(--border-hover)" }}>
+            <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: "1.3rem" }}>Kontakt & Radno Vreme</h2>
+
+            <div style={{ marginBottom: 20 }}>
+              <div className="muted" style={{ fontSize: "0.85rem", marginBottom: 4 }}>Okvirna Cena Usluge</div>
+              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#38BDF8" }}>
+                {listing.price_on_request ? "Po dogovoru" : listing.price ? `${Number(listing.price).toLocaleString("sr-RS")} RSD` : "Na upit"}
+              </div>
+            </div>
+
+            {listing.working_hours ? (
+              <div style={{ marginBottom: 20 }}>
+                <div className="muted" style={{ fontSize: "0.85rem", marginBottom: 4 }}>Radno vreme</div>
+                <div style={{ fontWeight: 600 }}>{listing.working_hours}</div>
+              </div>
+            ) : null}
+
+            <div className="grid" style={{ gap: 12 }}>
+              {listing.contact_phone ? (
+                <a
+                  className="button"
+                  style={{ width: "100%", background: "#10B981" }}
+                  href={`tel:${listing.contact_phone}`}
+                >
+                  📞 Pozovi: {listing.contact_phone}
+                </a>
+              ) : null}
+
+              {whatsAppPhone ? (
+                <a
+                  className="button"
+                  style={{ width: "100%", background: "#25D366" }}
+                  href={`https://wa.me/${whatsAppPhone}?text=${prefilledMessage}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  💬 Poruka na WhatsApp
+                </a>
+              ) : null}
+
+              {whatsAppPhone ? (
+                <a
+                  className="button"
+                  style={{ width: "100%", background: "#7360F2" }}
+                  href={`viber://chat?number=%2B${whatsAppPhone}`}
+                >
+                  🟣 Poruka na Viber
+                </a>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ type ListingCardProps = {
 
 export function ListingCard(props: ListingCardProps) {
   const fallbackImage =
-    "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80";
+    "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=600&q=80";
 
   return (
     <article className="card interactive listing-card">
@@ -43,7 +43,7 @@ export function ListingCard(props: ListingCardProps) {
         </h3>
 
         <div className="card-location muted">
-          <span>📍 {props.city ?? "Srbija"}</span>
+          📍 {props.city ?? "Srbija"}
         </div>
 
         <div className="card-footer flex-between">

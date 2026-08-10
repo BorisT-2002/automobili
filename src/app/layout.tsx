@@ -1,11 +1,48 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { NavbarAuth } from "../components/navbar-auth";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  themeColor: "#6366F1",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "AutoMajstor.rs | Pronađi Najboljeg Majstora i Auto Servis u Srbiji",
-  description: "Najveća baza verificiranih auto mehaničara, autoelektričara, vulkanizera, detailing centara i šlep službi u Srbiji.",
+  description: "Baza verifikovanih auto servisa, mehaničara, autoelektričara, vulkanizera i 00-24h šlep službi u Srbiji sa pravim recenzijama vozača.",
+  keywords: ["auto servis", "auto mehanicar", "autoelektričar", "slep sluzba", "vulkanizer", "detailing", "beograd", "novi sad", "niš"],
+  authors: [{ name: "AutoMajstor.rs" }],
+  metadataBase: new URL("https://automobili.rs"),
+  openGraph: {
+    title: "AutoMajstor.rs | Najbolji Auto Servisi u Srbiji",
+    description: "Brzo pronađite verifikovane auto servise, proverite cene i ocene vozača ili kontaktirajte majstora u 1-klik.",
+    url: "https://automobili.rs",
+    siteName: "AutoMajstor.rs",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80",
+        width: 1200,
+        height: 630,
+        alt: "AutoMajstor.rs",
+      },
+    ],
+    locale: "sr_RS",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutoMajstor.rs | Pronađi Najboljeg Majstora u Srbiji",
+    description: "Baza verifikovanih auto servisa sa ocenama vozača i direktnim čatom.",
+    images: ["https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80"],
+  },
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -40,7 +77,7 @@ export default function RootLayout({
                   🚗 AutoMajstor <span className="logo-badge">RS</span>
                 </Link>
                 <p>
-                  Vodeća platforma za brzo i sigurno pronalaženje auto servisa, mehanikara i 00-24h pomoći na putu širom Srbije.
+                  Vodeća platforma za brzo i sigurno pronalaženje auto servisa, mehaničara i 00-24h pomoći na putu širom Srbije.
                 </p>
               </div>
 

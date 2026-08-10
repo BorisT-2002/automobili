@@ -124,84 +124,61 @@ export default async function ListingPage({ params }: Params) {
   const mainImage = images[0]?.image_url || "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80";
 
   return (
-    <div className="grid" style={{ gap: 24, paddingBottom: 40 }}>
+    <div className="grid listing-page-container">
       {/* Banner Header */}
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ position: "relative", width: "100%", height: 320, background: "#0F172A" }}>
+      <div className="card listing-hero-banner">
+        <div className="listing-banner-image-box">
           <img
             src={mainImage}
             alt={listing.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }}
+            className="listing-banner-img"
           />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(to top, rgba(18, 24, 39, 0.95) 0%, transparent 70%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: 24,
-              left: 24,
-              right: 24,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              flexWrap: "wrap",
-              gap: 16,
-            }}
-          >
-            <div>
-              <div style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+          <div className="listing-banner-overlay" />
+          <div className="listing-banner-content">
+            <div className="listing-banner-info">
+              <div className="listing-badge-row">
                 <span className="badge primary">📍 {listing.city}</span>
                 {listing.featured && <span className="badge warning glow-badge">★ Istaknuto</span>}
                 {listing.emergency_service && <span className="badge danger glow-danger">00-24h Hitno</span>}
                 {listing.mobile_service && <span className="badge primary">Terenski servis</span>}
               </div>
-              <h1 style={{ fontSize: "2.2rem", margin: 0, color: "white" }}>{listing.title}</h1>
+              <h1 className="listing-main-title">{listing.title}</h1>
             </div>
 
-            <div
-              style={{
-                background: "rgba(15, 23, 42, 0.85)",
-                backdropFilter: "blur(12px)",
-                padding: "12px 20px",
-                borderRadius: "var(--radius-md)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                textAlign: "right",
-              }}
-            >
-              <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Prosečna ocena</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#F59E0B" }}>
-                ★ {(listing.average_rating ?? 0).toFixed(1)} <small style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 400 }}>({listing.review_count ?? 0} ocena)</small>
+            <div className="listing-rating-box">
+              <div className="muted" style={{ fontSize: "0.8rem" }}>Prosečna ocena</div>
+              <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#F59E0B" }}>
+                ★ {(listing.average_rating ?? 0).toFixed(1)}{" "}
+                <small style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 400 }}>
+                  ({listing.review_count ?? 0})
+                </small>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid" style={{ gridTemplateColumns: "2fr 1fr", gap: 24 }}>
-        <div className="grid" style={{ gap: 24 }}>
+      {/* Main Content Grid - Split on Desktop, Single Column on Mobile */}
+      <div className="listing-content-grid">
+        {/* Left / Main Details */}
+        <div className="grid" style={{ gap: 20 }}>
           {/* Description */}
           <section className="card">
-            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Opis Usluge</h2>
-            <p style={{ whiteSpace: "pre-line", fontSize: "1.05rem" }}>{listing.description}</p>
+            <h2 style={{ marginTop: 0, marginBottom: 14, fontSize: "1.2rem" }}>Opis Usluge</h2>
+            <p style={{ whiteSpace: "pre-line", fontSize: "0.98rem", wordBreak: "break-word" }}>{listing.description}</p>
           </section>
 
           {/* Interactive Location Map */}
           <section className="card">
-            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Lokacija Servisa</h2>
-            <ServiceMap city={listing.city} title={listing.title} height={300} />
+            <h2 style={{ marginTop: 0, marginBottom: 14, fontSize: "1.2rem" }}>Lokacija Servisa</h2>
+            <ServiceMap city={listing.city} title={listing.title} height={260} />
           </section>
 
           {/* Gallery */}
           {images.length > 0 ? (
             <section className="card">
-              <h2 style={{ marginTop: 0, marginBottom: 16 }}>Galerija Slika</h2>
-              <div className="grid grid-3">
+              <h2 style={{ marginTop: 0, marginBottom: 14, fontSize: "1.2rem" }}>Galerija Slika</h2>
+              <div className="grid grid-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))" }}>
                 {images.map((img, idx) => (
                   <img
                     key={`${img.image_url}-${idx}`}
@@ -209,7 +186,7 @@ export default async function ListingPage({ params }: Params) {
                     alt={listing.title}
                     style={{
                       width: "100%",
-                      height: 180,
+                      height: 120,
                       objectFit: "cover",
                       borderRadius: "var(--radius-md)",
                       border: "1px solid var(--border-color)",
@@ -222,24 +199,24 @@ export default async function ListingPage({ params }: Params) {
 
           {/* Reviews List */}
           <section className="card">
-            <h2 style={{ marginTop: 0, marginBottom: 16 }}>Recenzije Korisnika</h2>
-            <div className="grid" style={{ gap: 16 }}>
+            <h2 style={{ marginTop: 0, marginBottom: 14, fontSize: "1.2rem" }}>Recenzije Korisnika</h2>
+            <div className="grid" style={{ gap: 14 }}>
               {reviews.map((review) => (
                 <article
                   key={review.id}
                   style={{
                     background: "rgba(255, 255, 255, 0.02)",
                     border: "1px solid var(--border-color)",
-                    padding: 16,
+                    padding: 14,
                     borderRadius: "var(--radius-md)",
                   }}
                 >
-                  <div className="flex-between" style={{ marginBottom: 8 }}>
-                    <span style={{ fontWeight: 700 }}>{review.profiles?.full_name ?? "Korisnik"}</span>
-                    <span style={{ color: "#F59E0B", fontWeight: 700 }}>★ {review.rating}/5</span>
+                  <div className="flex-between" style={{ marginBottom: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>{review.profiles?.full_name ?? "Korisnik"}</span>
+                    <span style={{ color: "#F59E0B", fontWeight: 700, fontSize: "0.9rem" }}>★ {review.rating}/5</span>
                   </div>
-                  <p style={{ marginBottom: 8, color: "var(--text-main)" }}>{review.comment ?? "Bez komentara."}</p>
-                  <div className="muted" style={{ fontSize: "0.8rem" }}>
+                  <p style={{ marginBottom: 6, color: "var(--text-main)", fontSize: "0.9rem" }}>{review.comment ?? "Bez komentara."}</p>
+                  <div className="muted" style={{ fontSize: "0.75rem" }}>
                     {new Date(review.created_at).toLocaleDateString("sr-RS")}
                   </div>
                 </article>
@@ -252,25 +229,25 @@ export default async function ListingPage({ params }: Params) {
         </div>
 
         {/* Sidebar Info & Action Buttons */}
-        <div className="grid" style={{ gap: 24, alignContent: "start" }}>
+        <div className="grid" style={{ gap: 20, alignContent: "start" }}>
           <section className="card" style={{ border: "1px solid var(--border-hover)" }}>
-            <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: "1.3rem" }}>Kontakt & Čat</h2>
+            <h2 style={{ marginTop: 0, marginBottom: 14, fontSize: "1.2rem" }}>Kontakt & Čat</h2>
 
-            <div style={{ marginBottom: 20 }}>
-              <div className="muted" style={{ fontSize: "0.85rem", marginBottom: 4 }}>Okvirna Cena Usluge</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#38BDF8" }}>
+            <div style={{ marginBottom: 16 }}>
+              <div className="muted" style={{ fontSize: "0.8rem", marginBottom: 2 }}>Okvirna Cena Usluge</div>
+              <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#38BDF8" }}>
                 {listing.price_on_request ? "Po dogovoru" : listing.price ? `${Number(listing.price).toLocaleString("sr-RS")} RSD` : "Na upit"}
               </div>
             </div>
 
             {listing.working_hours ? (
-              <div style={{ marginBottom: 20 }}>
-                <div className="muted" style={{ fontSize: "0.85rem", marginBottom: 4 }}>Radno vreme</div>
-                <div style={{ fontWeight: 600 }}>{listing.working_hours}</div>
+              <div style={{ marginBottom: 16 }}>
+                <div className="muted" style={{ fontSize: "0.8rem", marginBottom: 2 }}>Radno vreme</div>
+                <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{listing.working_hours}</div>
               </div>
             ) : null}
 
-            <div className="grid" style={{ gap: 12 }}>
+            <div className="grid" style={{ gap: 10 }}>
               {/* Direct In-App Realtime Chat Button */}
               <StartChatButton listingId={listing.id} providerId={listing.provider_id} />
 

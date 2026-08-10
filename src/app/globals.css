@@ -48,7 +48,7 @@ html, body {
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  overflow-x: hidden; /* Prevents unwanted horizontal scroll on mobile */
+  overflow-x: hidden;
 }
 
 a {
@@ -194,6 +194,18 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); word-break: break-wo
 
 .bottom-nav-item.active .nav-icon {
   transform: scale(1.1);
+}
+
+/* Messages Center Responsive Layout */
+.messages-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  width: 100%;
+}
+
+.mobile-chat-back-btn {
+  display: none;
 }
 
 /* Compact Hero Section */
@@ -742,10 +754,18 @@ p { margin: 0; line-height: 1.55; color: var(--text-muted); word-break: break-wo
 @media (max-width: 800px) {
   .mobile-bottom-nav { display: flex; }
   .desktop-nav-links { display: none; }
+  .mobile-chat-back-btn { display: inline-flex; }
 
   .hero-compact { padding: 24px 16px; }
   .hero-title { font-size: 1.4rem; }
   .hero-subtitle { font-size: 0.85rem; }
+
+  /* Messages Mobile Toggle Layout */
+  .messages-layout { grid-template-columns: 1fr; }
+  .messages-layout.show-list .chatbox-panel { display: none; }
+  .messages-layout.show-list .conversations-panel { display: block; width: 100%; }
+  .messages-layout.show-chat .conversations-panel { display: none; }
+  .messages-layout.show-chat .chatbox-panel { display: block; width: 100%; }
 
   .listing-content-grid { grid-template-columns: 1fr; }
   .listing-banner-image-box { height: 220px; }

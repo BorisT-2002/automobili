@@ -21,6 +21,7 @@ export default function MessagesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -57,13 +58,18 @@ export default function MessagesPage() {
     if (conv.customer_id === currentUserId) {
       return conv.provider?.company_name || conv.provider?.full_name || conv.provider?.email || "Majstor";
     }
-    return conv.customer?.full_name || conv.customer?.email || "Kupac";
+    return conv.customer?.full_name || conv.customer?.email || "Korisnik";
+  };
+
+  const handleSelectConv = (id: string) => {
+    setActiveId(id);
+    setMobileShowChat(true);
   };
 
   return (
     <AuthGuard>
-      <div className="grid" style={{ gap: 24 }}>
-        <h1 style={{ marginTop: 0 }}>💬 Centar za Poruke (Realtime Čat)</h1>
+      <div className="grid" style={{ gap: 16 }}>
+        <h1 style={{ marginTop: 0, fontSize: "1.6rem" }}>💬 Centar za Poruke (Realtime Čat)</h1>
 
         {conversations.length === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: "40px 20px" }}>
@@ -73,13 +79,13 @@ export default function MessagesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid" style={{ gridTemplateColumns: "1fr 2fr", gap: 24 }}>
-            {/* Conversations List */}
-            <div className="card" style={{ padding: 12 }}>
+          <div className={`messages-layout ${mobileShowChat ? "show-chat" : "show-list"}`}>
+            {/* Conversations List Panel */}
+            <div className="card conversations-panel" style={{ padding: 12 }}>
               <h3 style={{ marginTop: 0, padding: "8px 8px 12px", borderBottom: "1px solid var(--border-color)" }}>
                 Razgovori ({conversations.length})
               </h3>
-              <div className="grid" style={{ gap: 8, marginTop: 12 }}>
+              <div className="grid" style={{ gap: 8, marginTop: 10 }}>
                 {conversations.map((c) => {
                   const partner = getPartnerName(c);
                   const isActive = c.id === activeId;
@@ -93,7 +99,7 @@ export default function MessagesPage() {
                         borderColor: isActive ? "var(--primary)" : "var(--border-color)",
                         background: isActive ? "rgba(99, 102, 241, 0.15)" : "var(--bg-card)",
                       }}
-                      onClick={() => setActiveId(c.id)}
+                      onClick={() => handleSelectConv(c.id)}
                     >
                       <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>💬 {partner}</div>
                       <div className="muted" style={{ fontSize: "0.8rem", marginTop: 4 }}>
@@ -105,15 +111,22 @@ export default function MessagesPage() {
               </div>
             </div>
 
-            {/* Active ChatBox */}
-            {activeConv && currentUserId ? (
-              <ChatBox
-                conversationId={activeConv.id}
-                currentUserId={currentUserId}
-                partnerName={getPartnerName(activeConv)}
-                listingTitle={activeConv.listings?.title}
-              />
-            ) : null}
+            {/* Active ChatBox Panel */}
+            <div className="chatbox-panel">
+              {activeConv && currentUserId ? (
+                <ChatBox
+                  conversationId={activeConv.id}
+                  currentUserId={currentUserId}
+                  partnerName={getPartnerName(activeConv)}
+                  listingTitle={activeConv.listings?.title}
+                  onBack={() => setMobileShowChat(false)}
+                />
+              ) : (
+                <div className="card" style={{ padding: 20, textAlign: "center" }}>
+                  Izaberite razgovor sa leve strane.
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

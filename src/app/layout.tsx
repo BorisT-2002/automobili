@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { MobileBottomNav } from "../components/mobile-bottom-nav";
 import { NavbarAuth } from "../components/navbar-auth";
 import "./globals.css";
 
@@ -60,7 +61,7 @@ export default function RootLayout({
             <Link href="/" className="logo">
               🚗 AutoMajstor <span className="logo-badge">RS</span>
             </Link>
-            <nav className="nav-links">
+            <nav className="nav-links desktop-nav-links">
               <Link href="/search">Pretraga Servisa</Link>
               <NavbarAuth />
             </nav>
@@ -68,6 +69,9 @@ export default function RootLayout({
         </header>
 
         <main className="container main-content">{children}</main>
+
+        {/* Floating Mobile Bottom Navigation */}
+        <MobileBottomNav />
 
         <footer className="footer">
           <div className="container">
